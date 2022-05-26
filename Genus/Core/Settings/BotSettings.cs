@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using GenusBot.Core.Services;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System.Text;
 
 namespace GenusBot.Core.Settings
@@ -25,25 +27,37 @@ namespace GenusBot.Core.Settings
 
         public static string FileName { get; } = "botsettings.json";
 
-        public async static Task<BotSettings> LoadAsync()
+        public async Task<BotSettings?> LoadAsync()
         {
-            string filePath = Path.Combine(AppContext.BaseDirectory, FileName);
-
-            var settings = new BotSettings();
-
-            if (!File.Exists(filePath))
+            try
             {
+                LoggingService.Log(GetType(), LogLevel.Information, "Loading settings.");
+
+                string filePath = Path.Combine(AppContext.BaseDirectory, FileName);
+
+                if (File.Exists(filePath))
+                    return JsonConvert.DeserializeObject<BotSettings>(File.ReadAllText(filePath));
+
+                LoggingService.Log(GetType(), LogLevel.Warning, "The file does not exists. Creating a new one.");
+                
+                var settings = new BotSettings();
+                
                 var stream = File.Create(filePath);
                 await stream.WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(settings)));
 
                 await stream.DisposeAsync();
-            }
-            else
-            {
-                settings = JsonConvert.DeserializeObject<BotSettings>(File.ReadAllText(filePath));
-            }
 
-            return settings ?? new BotSettings();
+                LoggingService.Log(GetType(), LogLevel.Information, "File created successfully.");
+                
+                LoggingService.Log(GetType(), LogLevel.Warning, "You need to provide valid settings to initialize the bot.");
+
+                return settings;
+            }
+            catch (Exception ex)
+            {
+                LoggingService.LogCritical(GetType(), "Unhandled error at loading bot settings.", ex);
+                return null;
+            }
         }
 
         public static bool IsValid(BotSettings settings)

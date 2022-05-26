@@ -1,5 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using GenusBot.Core.Services;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
 
 namespace GenusBot.Core.Modules
@@ -21,8 +23,20 @@ namespace GenusBot.Core.Modules
 
         public async Task InstallCommandsAsync()
         {
-            _client.MessageReceived += HandleCommandAsync;
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+            try
+            {
+                LoggingService.Log(GetType(), LogLevel.Information, "Setting up commands.");
+
+                _client.MessageReceived += HandleCommandAsync;
+                await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+
+                LoggingService.Log(GetType(), LogLevel.Information, "Commands setted up successfully.");
+            }
+            catch (Exception ex)
+            {
+                LoggingService.LogCritical(GetType(), "Critical failure at installing commands.", ex);
+                Console.ReadLine();
+            }
         }
 
         async Task HandleCommandAsync(SocketMessage messageParam)

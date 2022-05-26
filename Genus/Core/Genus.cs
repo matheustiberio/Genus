@@ -2,8 +2,10 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using GenusBot.Core.Modules;
+using GenusBot.Core.Services;
 using GenusBot.Core.Settings;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Victoria;
 
 namespace GenusBot.Core
@@ -16,10 +18,13 @@ namespace GenusBot.Core
         {
             PrintLogo();
 
-            Settings = await BotSettings.LoadAsync();
+            LoggingService.Log(GetType(), LogLevel.Information, "Initializing Genus.");
+
+            Settings = await new BotSettings().LoadAsync() ?? new BotSettings();
 
             if (!BotSettings.IsValid(Settings))
             {
+                LoggingService.Log(GetType(), LogLevel.Error, "Failure at loading bot settings.");
                 Console.ReadLine();
                 return;
             }
@@ -32,11 +37,15 @@ namespace GenusBot.Core
             await discordClient.LoginAsync(TokenType.Bot, Settings.Token);
             await discordClient.StartAsync();
 
+            LoggingService.Log(GetType(), LogLevel.Information, "GenusBot at your service.");
+
             await Task.Delay(Timeout.Infinite);
         }
 
         IServiceProvider SetupServices()
         {
+            LoggingService.Log(GetType(), LogLevel.Information, "Setting up services.");
+
             return new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<CommandService>()
@@ -70,6 +79,7 @@ namespace GenusBot.Core
 
         static void PrintLogo()
         {
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(@"
                            ______                              
                           / ____/  ___    ____   __  __   _____
