@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Discord;
+using Microsoft.Extensions.Logging;
 
 namespace GenusBot.Core.Services
 {
@@ -21,6 +22,13 @@ namespace GenusBot.Core.Services
             Console.WriteLine(string.Format(_messageFatalErrorTemplate, DateTime.Now, LogLevel.Critical, source, message, ex.Message));
         }
 
+        public static Task OnLavaLog(LogMessage arg)
+        {
+            Log(arg.Source, ParseSeverityToLogLevel(arg.Severity), arg.Message);
+
+            return Task.CompletedTask;
+        }
+
         static ConsoleColor PickForegroundColor(LogLevel logLevel)
         {
             return logLevel switch
@@ -30,6 +38,18 @@ namespace GenusBot.Core.Services
                 LogLevel.Error => ConsoleColor.DarkRed,
                 LogLevel.Critical => ConsoleColor.Red,
                 _ => ConsoleColor.Black,
+            };
+        }
+
+        static LogLevel ParseSeverityToLogLevel(LogSeverity logSeverity)
+        {
+            return logSeverity switch
+            {
+                LogSeverity.Info => LogLevel.Information,
+                LogSeverity.Warning => LogLevel.Warning,
+                LogSeverity.Error => LogLevel.Error,
+                LogSeverity.Critical => LogLevel.Critical,
+                _ => LogLevel.Debug,
             };
         }
     }

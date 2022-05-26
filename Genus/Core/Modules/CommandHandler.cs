@@ -29,7 +29,7 @@ namespace GenusBot.Core.Modules
 
                 _client.MessageReceived += HandleCommandAsync;
                 await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
-
+                
                 LoggingService.Log(GetType(), LogLevel.Information, "Commands setted up successfully.");
             }
             catch (Exception ex)

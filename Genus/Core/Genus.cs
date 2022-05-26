@@ -13,6 +13,7 @@ namespace GenusBot.Core
     public class Genus
     {
         public BotSettings Settings { get; private set; }
+        private IServiceProvider ServiceProvider { get; set; }
 
         public async Task Initialize()
         {
@@ -29,28 +30,43 @@ namespace GenusBot.Core
                 return;
             }
 
-            var services = SetupServices();
-            var discordClient = services.GetRequiredService<DiscordSocketClient>();
+            SetupServices();
+            var discordClient = ServiceProvider.GetRequiredService<DiscordSocketClient>();
 
-            await SetupCommands(discordClient, services);
+            await SetupCommands(discordClient, ServiceProvider);
 
             await discordClient.LoginAsync(TokenType.Bot, Settings.Token);
             await discordClient.StartAsync();
 
-            LoggingService.Log(GetType(), LogLevel.Information, "GenusBot at your service.");
+            discordClient.Ready += OnReadyAsync;
 
             await Task.Delay(Timeout.Infinite);
         }
 
-        IServiceProvider SetupServices()
+        void SetupServices()
         {
             LoggingService.Log(GetType(), LogLevel.Information, "Setting up services.");
 
-            return new ServiceCollection()
+            ServiceProvider = new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<CommandService>()
-                .AddLavaNode(x => SetupLavalinkConfig())
+                .AddLavaNode()
+                .AddSingleton(SetupLavalinkConfig())
+                .AddSingleton<MusicPlayerService>()
                 .BuildServiceProvider();
+        }
+
+        async Task SetupCommands(DiscordSocketClient client, IServiceProvider services)
+        {
+            var commandService = new CommandService(new CommandServiceConfig
+            {
+                CaseSensitiveCommands = false,
+                DefaultRunMode = RunMode.Async,
+            });
+
+            var commandHandler = new CommandHandler(Convert.ToChar(Settings.CommandPrefix), commandService, services, client);
+
+            await commandHandler.InstallCommandsAsync();
         }
 
         LavaConfig SetupLavalinkConfig()
@@ -65,16 +81,23 @@ namespace GenusBot.Core
             };
         }
 
-        async Task SetupCommands(DiscordSocketClient client, IServiceProvider services)
+        private async Task OnReadyAsync()
         {
-            var commandService = new CommandService(new CommandServiceConfig
+            try
             {
-                CaseSensitiveCommands = false,
-            });
+                var lavaNode = ServiceProvider.GetRequiredService<LavaNode>();
+                lavaNode.OnLog += LoggingService.OnLavaLog;
 
-            var commandHandler = new CommandHandler(Convert.ToChar(Settings.CommandPrefix), commandService, services, client);
-
-            await commandHandler.InstallCommandsAsync();
+                LoggingService.Log(GetType(), LogLevel.Information, "Connecting to Lavalink node.");
+                
+                await lavaNode.ConnectAsync();
+                
+                LoggingService.Log(GetType(), LogLevel.Information, "Genus at your service.");
+            }
+            catch (Exception ex)
+            {
+                LoggingService.LogCritical(GetType(), "Failed to connect to Lavalink node.", ex);
+            }
         }
 
         static void PrintLogo()
