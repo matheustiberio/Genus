@@ -69,7 +69,7 @@ namespace GenusBot.Core.Settings
 
             var areStringPropertiesValid = properties
                 .Where(propertyInfo => propertyInfo.GetValue(settings) is string)
-                .All(p => !string.IsNullOrWhiteSpace(p.GetValue(settings) as string));
+                .All(p => !string.IsNullOrEmpty(p.GetValue(settings) as string));
 
             return areStringPropertiesValid;
         }
