@@ -52,6 +52,7 @@ namespace GenusBot.Core
                 .AddSingleton<CommandService>()
                 .AddLavaNode()
                 .AddSingleton(SetupLavalinkConfig())
+                .AddSingleton<BaseVoiceChannelService>()
                 .AddSingleton<MusicPlayerService>()
                 .BuildServiceProvider();
         }

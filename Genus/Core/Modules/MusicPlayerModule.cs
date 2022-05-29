@@ -4,11 +4,11 @@ using GenusBot.Core.Services;
 
 namespace GenusBot.Core.Modules
 {
-    public class MusicPlayerModule : ModuleBase<SocketCommandContext>
+    public class MusicPlayerModule : BaseVoiceChannelModule
     {
         private readonly MusicPlayerService _musicPlayerService;
 
-        public MusicPlayerModule(MusicPlayerService musicPlayerService)
+        public MusicPlayerModule(MusicPlayerService musicPlayerService, BaseVoiceChannelService baseVoiceChannelService) : base(baseVoiceChannelService)
         {
             _musicPlayerService = musicPlayerService;
         }
@@ -38,7 +38,6 @@ namespace GenusBot.Core.Modules
 
             await _musicPlayerService.PauseSoundAsync((IGuildUser)Context.User);
         }
-
 
         [Command("resume")]
         [Alias("r")]
@@ -78,8 +77,5 @@ namespace GenusBot.Core.Modules
 
             await _musicPlayerService.SkipSoundAsync((IGuildUser)Context.User);
         }
-
-        private bool UserIsNotInVoiceChannel() => ((IGuildUser)Context.User)?.VoiceChannel == null;
-        private async Task UserIsNotInVoiceChannelMessage() => await ReplyAsync("cê não ta num canal de voz.");
     }
 }
