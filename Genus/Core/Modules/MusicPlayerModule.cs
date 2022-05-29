@@ -42,7 +42,7 @@ namespace GenusBot.Core.Modules
 
         [Command("resume")]
         [Alias("r")]
-        public async Task Resume(string query)
+        public async Task Resume()
         {
             if (UserIsNotInVoiceChannel())
             {
