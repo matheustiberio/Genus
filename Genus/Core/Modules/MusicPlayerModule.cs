@@ -23,7 +23,9 @@ namespace GenusBot.Core.Modules
                 return;
             }
 
-            await _musicPlayerService.PlaySoundAsync(query, (IGuildUser)Context.User);
+            var embedMessage = await _musicPlayerService.PlaySoundAsync(query, (IGuildUser)Context.User, Context);
+
+            await ReplyAsync(null, false, embedMessage);
         }
 
         [Command("pause")]

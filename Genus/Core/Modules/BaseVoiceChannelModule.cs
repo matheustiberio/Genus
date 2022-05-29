@@ -13,7 +13,7 @@ namespace GenusBot.Core.Modules
             _voiceChannelService = voiceChannelService;
         }
 
-        [Command("opa")]
+        [Command("aoba")]
         [Alias("join")]
         public async Task JoinVoiceChannelAsync()
         {

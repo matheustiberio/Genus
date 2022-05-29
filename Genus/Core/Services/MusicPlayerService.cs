@@ -1,5 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
+using GenusBot.Core.Helpers;
+using System;
 using Victoria;
 using Victoria.Enums;
 using Victoria.Responses.Search;
@@ -15,12 +17,12 @@ namespace GenusBot.Core.Services
             _lavaNode = lavaNode;
         }
 
-        public async Task PlaySoundAsync(string query, IGuildUser guildUser)
+        public async Task<Embed> PlaySoundAsync(string query, IGuildUser guildUser, SocketCommandContext context)
         {
             LavaPlayer musicPlayer = await GetMusicPlayer(guildUser.Guild, guildUser.VoiceChannel);
 
             var searchResult = await _lavaNode.SearchAsync(SearchType.YouTube, query);
-            
+
             var firstResulTrack = searchResult.Tracks.First();
 
             if (musicPlayer.PlayerState == PlayerState.Playing || musicPlayer.PlayerState == PlayerState.Paused)
@@ -30,10 +32,12 @@ namespace GenusBot.Core.Services
                 else
                     musicPlayer.Queue.Enqueue(firstResulTrack);
 
-                return;
+                return null;
             }
 
             await musicPlayer.PlayAsync(firstResulTrack);
+
+            return await MessageHelper.ReplayPlayingSongAsync(firstResulTrack, guildUser, context);
         }
 
         public async Task PauseSoundAsync(IGuildUser guildUser)
@@ -64,12 +68,12 @@ namespace GenusBot.Core.Services
             await musicPlayer.SkipAsync();
         }
 
-        private static bool IsPlaylist(SearchResponse searchResult)
+        static bool IsPlaylist(SearchResponse searchResult)
         {
             return !string.IsNullOrEmpty(searchResult.Playlist.Name);
         }
 
-        private static void AddPlaylistTracksToQueue(LavaPlayer musicPlayer, SearchResponse searchResult)
+        static void AddPlaylistTracksToQueue(LavaPlayer musicPlayer, SearchResponse searchResult)
         {
             foreach (var playListTrack in searchResult.Tracks)
                 musicPlayer.Queue.Enqueue(playListTrack);
