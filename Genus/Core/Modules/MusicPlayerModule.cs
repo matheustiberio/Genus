@@ -6,7 +6,7 @@ namespace GenusBot.Core.Modules
 {
     public class MusicPlayerModule : BaseVoiceChannelModule
     {
-        private readonly MusicPlayerService _musicPlayerService;
+        public readonly MusicPlayerService _musicPlayerService;
 
         public MusicPlayerModule(MusicPlayerService musicPlayerService, BaseVoiceChannelService baseVoiceChannelService) : base(baseVoiceChannelService)
         {
@@ -23,7 +23,9 @@ namespace GenusBot.Core.Modules
                 return;
             }
 
-            var embedMessage = await _musicPlayerService.PlaySoundAsync(query, (IGuildUser)Context.User, Context);
+            SetCommandContextToService();
+
+            var embedMessage = await _musicPlayerService.PlaySoundAsync(query);
 
             await ReplyAsync(null, false, embedMessage);
         }
@@ -38,7 +40,11 @@ namespace GenusBot.Core.Modules
                 return;
             }
 
-            await _musicPlayerService.PauseSoundAsync((IGuildUser)Context.User);
+            SetCommandContextToService();
+
+            var embedMessage = await _musicPlayerService.PauseSoundAsync();
+
+            await ReplyAsync(null, false, embedMessage);
         }
 
         [Command("resume")]
@@ -51,7 +57,12 @@ namespace GenusBot.Core.Modules
                 return;
             }
 
-            await _musicPlayerService.ResumeSoundAsync((IGuildUser)Context.User);
+            SetCommandContextToService();
+
+            var embedMessage = await _musicPlayerService.ResumeSoundAsync();
+
+            await ReplyAsync(null, false, embedMessage);
+
         }
 
         [Command("stop")]
@@ -64,7 +75,9 @@ namespace GenusBot.Core.Modules
                 return;
             }
 
-            await _musicPlayerService.StopSoundAsync((IGuildUser)Context.User);
+            SetCommandContextToService();
+
+            await _musicPlayerService.StopSoundAsync();
         }
 
         [Command("skip")]
@@ -77,7 +90,11 @@ namespace GenusBot.Core.Modules
                 return;
             }
 
-            await _musicPlayerService.SkipSoundAsync((IGuildUser)Context.User);
+            SetCommandContextToService();
+
+            await _musicPlayerService.SkipSoundAsync();
         }
+
+        void SetCommandContextToService() => _musicPlayerService.context = Context;
     }
 }

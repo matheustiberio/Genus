@@ -87,7 +87,10 @@ namespace GenusBot.Core
             try
             {
                 var lavaNode = ServiceProvider.GetRequiredService<LavaNode>();
+                var musicPlayerService = ServiceProvider.GetRequiredService<MusicPlayerService>();
+
                 lavaNode.OnLog += LoggingService.OnLavaLog;
+                lavaNode.OnTrackEnded += musicPlayerService.OnTrackEnded;
 
                 LoggingService.Log(GetType(), LogLevel.Information, "Connecting to Lavalink node.");
                 
