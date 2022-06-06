@@ -73,7 +73,8 @@ namespace GenusBot.Core.Services
             var musicPlayer = await GetMusicPlayer(context);
 
             await musicPlayer.ResumeAsync();
-
+            
+            await MessageHelper.DeletePreviousCommand(context);
             return MessageHelper.ReplyResumeSongMessage(GetGuildUser(context));
         }
 
@@ -84,17 +85,29 @@ namespace GenusBot.Core.Services
             await musicPlayer.StopAsync();
         }
 
-        public async Task SkipSoundAsync()
+        public async Task<Embed> SkipSoundAsync()
         {
             var musicPlayer = await GetMusicPlayer(context);
 
-            await musicPlayer.SkipAsync();
+            var (skippedSong, currentSong) = await musicPlayer.SkipAsync(TimeSpan.FromMilliseconds(200));
+            
+            await MessageHelper.DeletePreviousCommand(context);
+            return await MessageHelper.ReplyPlayingSongAsync(currentSong, GetGuildUser(context));
+        }
+
+        public async Task SetVolume(ushort volume)
+        {
+            var musicPlayer = await GetMusicPlayer(context);
+
+            await musicPlayer.UpdateVolumeAsync(volume);
         }
 
         public async Task OnTrackEnded(TrackEndedEventArgs args)
         {
-            var player = args.Player;
+            if (args.Reason != TrackEndReason.Finished)
+                return;
 
+            var player = args.Player;
             if (!player.Queue.TryDequeue(out var queueable))
             {
                 await player.TextChannel.SendMessageAsync("Cabô as músicas, patrão. Sextou? \uD83D\uDE0E");
@@ -103,10 +116,10 @@ namespace GenusBot.Core.Services
 
             if (queueable is not LavaTrack track)
             {
-                await player.TextChannel.SendMessageAsync("Ixi, tem coisa que não é música na fila. \uD83E\uDDD0");
+                await player.TextChannel.SendMessageAsync("Ixi, a próxima música deu xabu.");
                 return;
             }
-            
+
             await args.Player.PlayAsync(track);
             await args.Player.TextChannel.SendMessageAsync(null, false, await MessageHelper.ReplyPlayingSongAsync(track, GetGuildUser(context)));
         }
@@ -128,20 +141,17 @@ namespace GenusBot.Core.Services
             IGuildUser guildUser = GetGuildUser(context);
 
             if (!_lavaNode.HasPlayer(context.Guild))
+            {
                 musicPlayer = await _lavaNode.JoinAsync(guildUser.VoiceChannel, (ITextChannel)context.Channel);
+                await musicPlayer.UpdateVolumeAsync(2);
+            }
             else
                 musicPlayer = _lavaNode.GetPlayer(context.Guild);
 
-            await SetVolume(musicPlayer);
 
             return musicPlayer;
         }
 
         private static IGuildUser GetGuildUser(SocketCommandContext context) => (IGuildUser)context.User;
-
-        static async Task SetVolume(LavaPlayer musicPlayer, ushort volume = 2)
-        {
-            await musicPlayer.UpdateVolumeAsync(volume);
-        }
     }
 }

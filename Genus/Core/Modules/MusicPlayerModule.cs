@@ -92,7 +92,15 @@ namespace GenusBot.Core.Modules
 
             SetCommandContextToService();
 
-            await _musicPlayerService.SkipSoundAsync();
+            var embedMessage = await _musicPlayerService.SkipSoundAsync();
+
+            await ReplyAsync(null, false, embedMessage);
+        }
+
+        [Command("vol")]
+        public async Task SetVolumeAsync(ushort volume)
+        {
+            await _musicPlayerService.SetVolume(volume);
         }
 
         void SetCommandContextToService() => _musicPlayerService.context = Context;

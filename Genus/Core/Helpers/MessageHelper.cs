@@ -46,7 +46,7 @@ namespace GenusBot.Core.Helpers
 
         async static Task<Embed> BuildPlayingEmbedMessageAsync(LavaTrack track, IGuildUser guildUser)
         {
-            var embedBuilder = BuildBaseEmbedBuilder(track.Title, $"\uD83D\uDCBF Sortei a braba: ", guildUser);
+            var embedBuilder = BuildBaseEmbedBuilder(track.Title, $"\uD83D\uDCBF Sortei a braba: ", guildUser, Color.Green);
 
             await BuildBaseTrackEmbedBuilderAsync(track.Title, track, embedBuilder);
 
@@ -57,7 +57,7 @@ namespace GenusBot.Core.Helpers
 
         async static Task<Embed> BuildSongAddedToQueueAsync(LavaTrack track, IGuildUser guildUser)
         {
-            var embedBuilder = BuildBaseEmbedBuilder(track.Title, $"\u2705 Botei a música na fila, chefia.", guildUser);
+            var embedBuilder = BuildBaseEmbedBuilder(track.Title, $"\u2705 Botei a música na fila, chefia.", guildUser, Color.Orange);
 
             await BuildBaseTrackEmbedBuilderAsync(track.Title, track, embedBuilder);
 
@@ -68,28 +68,28 @@ namespace GenusBot.Core.Helpers
 
         static Embed BuildSongNotFoundEmbedMessageAsync(IGuildUser guildUser)
         {
-            var embedBuilder = BuildBaseEmbedBuilder(string.Empty, $"Num achei essa música ou playlist \uD83D\uDE22", guildUser);
+            var embedBuilder = BuildBaseEmbedBuilder(string.Empty, $"Num achei essa música ou playlist \uD83D\uDE22", guildUser, Color.Green);
 
             return embedBuilder.Build();
         }
 
         static Embed BuildPlayListEmbedMessage(int numberOfSongsAdded, IGuildUser guildUser)
         {
-            var embedBuilder = BuildBaseEmbedBuilder(string.Empty, $"\u2705 Botei a playlist na fila, chefia. Adicionei {numberOfSongsAdded} músicas à ela.", guildUser);
+            var embedBuilder = BuildBaseEmbedBuilder(string.Empty, $"\u2705 Botei a playlist na fila, chefia. Adicionei {numberOfSongsAdded} músicas à ela.", guildUser, Color.Green);
 
             return embedBuilder.Build();
         }
 
         static Embed BuildResumeSong(IGuildUser guildUser)
         {
-            var embedBuilder = BuildBaseEmbedBuilder(string.Empty, $"\u25B6 Sortei!", guildUser);
+            var embedBuilder = BuildBaseEmbedBuilder(string.Empty, $"\u25B6 Sortei!", guildUser, Color.Green);
 
             return embedBuilder.Build();
         }
 
         static Embed BuildPauseSong(IGuildUser guildUser)
         {
-            var embedBuilder = BuildBaseEmbedBuilder(string.Empty, $"\u23F8 Calmô", guildUser);
+            var embedBuilder = BuildBaseEmbedBuilder(string.Empty, $"\u23F8 Calmô", guildUser, Color.Green);
 
             return embedBuilder.Build();
         }
@@ -99,12 +99,12 @@ namespace GenusBot.Core.Helpers
             embedBuilder.AddField("Duração: ", $"{track.Duration:mm\\:ss}");
         }
 
-        static EmbedBuilder BuildBaseEmbedBuilder(string title, string authorName, IGuildUser guildUser)
+        static EmbedBuilder BuildBaseEmbedBuilder(string title, string authorName, IGuildUser guildUser, Color color)
         {
             var embed = new EmbedBuilder
             {
                 Title = title,
-                Color = Color.Green,
+                Color = color,
             }.WithAuthor(x => x.WithName(authorName))
             .WithFooter(x =>
             {
