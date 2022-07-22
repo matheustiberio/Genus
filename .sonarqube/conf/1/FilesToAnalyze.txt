@@ -1,0 +1,12 @@
+﻿E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Genus.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Helpers\MessageHelper.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Modules\BaseVoiceChannelModule.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Modules\CommandHandler.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Modules\InfoModule.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Modules\MusicPlayerModule.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Services\BaseVoiceChannelService.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Services\LoggingService.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Services\MusicPlayerService.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Core\Settings\BotSettings.cs
+E:\Dev\Repos\dotnet\Projects\Genus\Genus\Program.cs
+E:\Dev\Repos\dotnet\Projects\Genus\.editorconfig
